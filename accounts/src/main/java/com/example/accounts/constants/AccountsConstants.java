@@ -1,8 +1,8 @@
 package com.example.accounts.constants;
 
-public final class AccountConstants {
+public final class AccountsConstants {
 
-    private AccountConstants() {}
+    private AccountsConstants() {}
 
     public static final String  SAVINGS = "Savings";
     public static final String  ADDRESS = "123 Main Street, New York";

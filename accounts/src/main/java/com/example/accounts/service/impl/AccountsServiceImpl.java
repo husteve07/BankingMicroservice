@@ -1,6 +1,6 @@
 package com.example.accounts.service.impl;
 
-import com.example.accounts.constants.AccountConstants;
+import com.example.accounts.constants.AccountsConstants;
 import com.example.accounts.dto.AccountsDto;
 import com.example.accounts.dto.CustomerDto;
 import com.example.accounts.entity.Accounts;
@@ -55,8 +55,8 @@ public class AccountsServiceImpl implements IAccountsService {
         long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
 
         newAccounts.setAccountNumber(randomAccNumber);
-        newAccounts.setAccountType(AccountConstants.SAVINGS);
-        newAccounts.setBranchAddress(AccountConstants.ADDRESS);
+        newAccounts.setAccountType(AccountsConstants.SAVINGS);
+        newAccounts.setBranchAddress(AccountsConstants.ADDRESS);
         newAccounts.setCreatedAt(LocalDateTime.now());
         newAccounts.setCreatedBy("Anonymous");
         return newAccounts;
@@ -75,5 +75,27 @@ public class AccountsServiceImpl implements IAccountsService {
         customerDto.setAccountsDto(AccountsMapper.mapToAccountsDto(accounts, new AccountsDto()));
 
         return customerDto;
+    }
+
+    @Override
+    public boolean updateAccount(CustomerDto customerDto) {
+        boolean isUpdated = false;
+        AccountsDto accountsDto = customerDto.getAccountsDto();
+        if(accountsDto !=null ){
+            Accounts accounts = accountsRepository.findById(accountsDto.getAccountNumber()).orElseThrow(
+                    () -> new ResourceNotFoundException("Account", "AccountNumber", accountsDto.getAccountNumber().toString())
+            );
+            AccountsMapper.mapToAccounts(accountsDto, accounts);
+            accounts = accountsRepository.save(accounts);
+
+            Long customerId = accounts.getCustomerId();
+            Customer customer = customerRepository.findById(customerId).orElseThrow(
+                    () -> new ResourceNotFoundException("Customer", "CustomerID", customerId.toString())
+            );
+            CustomerMapper.mapToCustomer(customerDto,customer);
+            customerRepository.save(customer);
+            isUpdated = true;
+        }
+        return  isUpdated;
     }
 }
